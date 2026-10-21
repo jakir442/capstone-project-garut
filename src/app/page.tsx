@@ -5,7 +5,7 @@ import { MenuSection } from "@/features/home/components/menu-section";
 import { StorySection } from "@/features/home/components/story-section";
 import { HomeFooter } from "@/features/home/components/home-footer";
 import { getPublicMenus } from "@/features/menu/queries/public-menu.queries";
-import { BestSellerSection } from "@/features/home/components/best-seller-section";
+import { MenuShowcaseSection } from "@/features/home/components/menu-showcase-section";
 
 export default async function HomePage() {
   const menus = await getPublicMenus();
@@ -17,7 +17,7 @@ export default async function HomePage() {
       <main>
         <HeroSection />
         <MenuSection menus={menus} />
-        <BestSellerSection />
+        <MenuShowcaseSection />
         <StorySection />
         <LocationsSection />
       </main>

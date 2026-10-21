@@ -1,20 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import Script from "next/script";
 import { Toaster } from "sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
@@ -31,9 +21,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='id' className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang='id' className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className='min-h-screen bg-background text-foreground antialiased'>
         {children}
+
         <Toaster position='top-right' richColors />
 
         <Script
