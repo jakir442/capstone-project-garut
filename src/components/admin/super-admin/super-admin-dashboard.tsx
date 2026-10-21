@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import type { BranchDocument } from "@/features/branches/types";
 import { CreateAdminDialog } from "./create-admin-dialog";
 import { EditAdminDialog } from "./edit-admin-dialog";
 import { DeleteAdminDialog } from "./delete-admin-dialog";
@@ -43,8 +42,19 @@ type AdminUser = {
   updatedAt: Date;
 };
 
-type DashboardBranch = BranchDocument & {
+type DashboardBranch = {
   id: string;
+  name: string;
+  slug: string;
+  concept: "modern-futuristic" | "traditional-heritage" | "contemporary-cozy";
+  address: string;
+  phone?: string;
+  googleMapsUrl?: string;
+  openingHours?: string;
+  image?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 type SuperAdminDashboardProps = {
@@ -782,7 +792,7 @@ function StatCard({ icon: Icon, label, value, description }: StatCardProps) {
 
 type BranchCardProps = {
   meta: (typeof branchMeta)[number];
-  branch: BranchDocument | null;
+  branch: DashboardBranch | null;
 };
 
 function BranchCard({ meta, branch }: BranchCardProps) {

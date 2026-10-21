@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 import { Container } from "@/components/layout/container";
 import { SectionHeading } from "@/components/shared/section-heading";
@@ -15,24 +14,12 @@ type CategoryFilter = "Semua" | PublicMenuCategory;
 
 type MenuPageProps = {
   menus: PublicMenu[];
+  initialCategory?: CategoryFilter;
 };
 
-function getCategoryFromParams(value: string | null): CategoryFilter {
-  if (value === "Kopi" || value === "Minuman" || value === "Makanan") {
-    return value;
-  }
-
-  return "Semua";
-}
-
-export function MenuPage({ menus }: MenuPageProps) {
-  const searchParams = useSearchParams();
-
+export function MenuPage({ menus, initialCategory = "Semua" }: MenuPageProps) {
   const [search, setSearch] = useState("");
-
-  const [category, setCategory] = useState<CategoryFilter>(() =>
-    getCategoryFromParams(searchParams.get("category")),
-  );
+  const [category, setCategory] = useState<CategoryFilter>(initialCategory);
 
   const filteredItems = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
