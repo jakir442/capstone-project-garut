@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { signOut } from "@/auth";
-import { CozyDashboard } from "@/components/admin/cabang-3-Tutup-Permanent/cozy-dashboard";
+import { CozyDashboard } from "@/components/admin/cabang-3-Tutup-Permanen/cozy-dashboard";
 import { getAdminBranchAccess } from "@/lib/auth/branch-access";
 import { requireAdmin } from "@/lib/auth/authorization";
 
