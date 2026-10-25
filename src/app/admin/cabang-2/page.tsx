@@ -52,6 +52,7 @@ export default async function Cabang2AdminPage({ searchParams }: Cabang2AdminPag
       branch={access.branch}
       menus={menus}
       onSignOut={handleSignOut}
+      isSuperAdmin={session.user.role === "super_admin"}
       activeTab={activeTab}
     />
   );

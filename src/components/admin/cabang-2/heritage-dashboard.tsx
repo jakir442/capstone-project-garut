@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
+  ArrowLeft,
   ArrowRight,
   Bell,
   BookOpen,
@@ -18,11 +20,13 @@ import {
   ShieldCheck,
   Store,
   UtensilsCrossed,
+  X,
   type LucideIcon,
 } from "lucide-react";
 
 import type { BranchDocument } from "@/features/branches/types";
 import { MenuManagement, type MenuData } from "@/features/menu/components/admin/menu-management";
+import Image from "next/image";
 
 type HeritageDashboardProps = {
   name: string;
@@ -30,6 +34,7 @@ type HeritageDashboardProps = {
   branch: BranchDocument | null;
   menus: MenuData[];
   onSignOut: () => Promise<void>;
+  isSuperAdmin?: boolean;
   activeTab?: "dashboard" | "menu";
 };
 
@@ -39,7 +44,6 @@ type NavigationItem = {
   icon: LucideIcon;
   href?: string;
   tab?: "dashboard" | "menu";
-  active?: boolean;
 };
 
 const navigationItems: NavigationItem[] = [
@@ -96,9 +100,11 @@ const staggerContainer = {
 function NavigationLink({
   item,
   activeTab,
+  onNavigate,
 }: {
   item: NavigationItem;
   activeTab: "dashboard" | "menu";
+  onNavigate?: () => void;
 }) {
   const Icon = item.icon;
   const isActive = item.tab === activeTab;
@@ -125,6 +131,8 @@ function NavigationLink({
   return (
     <Link
       href={item.href}
+      onClick={onNavigate}
+      aria-current={isActive ? "page" : undefined}
       className={`group flex items-center gap-3 rounded-xl px-3 py-3 transition-all duration-200 ${
         isActive
           ? "bg-[#49372A] text-[#FBF5EB] shadow-[0_8px_20px_rgba(73,55,42,0.12)]"
@@ -185,15 +193,61 @@ export function HeritageDashboard({
   branch,
   menus,
   onSignOut,
+  isSuperAdmin = false,
   activeTab = "dashboard",
 }: HeritageDashboardProps) {
-  const firstName = name.trim().split(/\s+/)[0] || "Admin";
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const firstName = name.trim().split(/\s+/)[0] || "Admin";
   const branchName = branch?.name ?? "Kopilogi Cabang 2";
   const branchAddress = branch?.address ?? "Informasi alamat belum tersedia";
 
+  // Aktifkan tema Traditional Heritage.
+  useEffect(() => {
+    const root = document.documentElement;
+
+    root.classList.remove("hallway-theme", "cozy-theme");
+    root.classList.add("heritage-theme");
+
+    return () => {
+      root.classList.remove("heritage-theme");
+    };
+  }, []);
+
+  // Kunci scroll halaman saat drawer terbuka.
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMobileMenuOpen]);
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleSignOut = () => {
+    closeMobileMenu();
+    void onSignOut();
+  };
+
   return (
     <div className='min-h-screen bg-[#F5F0E7] text-[#49372A] selection:bg-[#B99A72]/30'>
+      {/* BACKGROUND DECORATION */}
       <div className='pointer-events-none fixed inset-0 z-0 overflow-hidden'>
         <div className='absolute -left-32 top-[-180px] h-[420px] w-[420px] rounded-full bg-[#D9C5AA]/20 blur-3xl' />
         <div className='absolute -right-32 bottom-[-180px] h-[420px] w-[420px] rounded-full bg-[#89936D]/10 blur-3xl' />
@@ -201,22 +255,168 @@ export function HeritageDashboard({
         <div className='absolute inset-0 opacity-[0.025] [background-image:radial-gradient(#49372A_0.8px,transparent_0.8px)] [background-size:20px_20px]' />
       </div>
 
+      {/* MOBILE NAVIGATION DRAWER */}
+      <div
+        className={`fixed inset-0 z-[60] lg:hidden ${
+          isMobileMenuOpen ? "visible" : "invisible pointer-events-none"
+        }`}
+        aria-hidden={!isMobileMenuOpen}
+      >
+        {/* Overlay */}
+        <button
+          type='button'
+          aria-label='Tutup navigasi'
+          tabIndex={isMobileMenuOpen ? 0 : -1}
+          onClick={closeMobileMenu}
+          className={`absolute inset-0 h-full w-full cursor-default bg-[#30251C]/45 backdrop-blur-[2px] transition-opacity duration-300 ${
+            isMobileMenuOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
+        {/* Drawer */}
+        <aside
+          id='heritage-mobile-navigation'
+          aria-label='Navigasi Cabang 2'
+          role='dialog'
+          aria-modal={isMobileMenuOpen ? true : undefined}
+          inert={!isMobileMenuOpen}
+          className={`kopilogi-heritage-scroll absolute inset-y-0 left-0 flex w-[min(300px,85vw)] flex-col overflow-y-auto border-r border-[#DED3C3] bg-[#FBF8F2] px-5 py-6 shadow-2xl transition-transform duration-300 ease-out ${
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          {/* Drawer header */}
+          <div className='flex items-center justify-between gap-3'>
+            <Link
+              href='/admin/cabang-2'
+              onClick={closeMobileMenu}
+              className='flex items-center gap-3'
+            >
+              <div className='relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#49372A] text-[#F6EBDD]'>
+                <Image
+                  src='/logo/kopilogi-no-bg.png'
+                  alt='Logo Kopilogi'
+                  fill
+                  sizes='40px'
+                  className='object-contain p-1 transition-transform duration-300 group-hover:scale-105'
+                  priority
+                />
+
+                <span className='absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-[#FBF8F2] bg-[#667451]' />
+              </div>
+
+              <div>
+                <p className='font-serif text-[16px] font-bold text-[#49372A]'>Waroeng Kopilogi</p>
+                <p className='mt-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#9A7C5D]'>
+                  Cabang Heritage
+                </p>
+              </div>
+            </Link>
+
+            <button
+              type='button'
+              aria-label='Tutup navigasi'
+              onClick={closeMobileMenu}
+              className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#DED3C3] text-[#49372A] transition-colors hover:bg-[#EFE5D7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9A7C5D]'
+            >
+              <X size={19} />
+            </button>
+          </div>
+
+          {/* Branch card */}
+          <div className='mt-8 overflow-hidden rounded-2xl border border-[#DDCEBB] bg-[#F1E7D8]'>
+            <div className='h-1 bg-[#765239]' />
+
+            <div className='p-4'>
+              <div className='flex items-center gap-2'>
+                <span className='h-2 w-2 rounded-full bg-[#667451]' />
+                <span className='text-[9px] font-bold uppercase tracking-[0.18em] text-[#806B55]'>
+                  Cabang Aktif
+                </span>
+              </div>
+
+              <p className='mt-3 font-serif text-lg font-semibold text-[#49372A]'>Cabang 2</p>
+
+              <p className='mt-1 text-xs leading-relaxed text-[#88745E]'>{branchName}</p>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className='mt-8'>
+            <p className='mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#AA9278]'>
+              Navigasi
+            </p>
+
+            <nav className='space-y-1.5'>
+              {navigationItems.map((item) => (
+                <NavigationLink
+                  key={item.label}
+                  item={item}
+                  activeTab={activeTab}
+                  onNavigate={closeMobileMenu}
+                />
+              ))}
+            </nav>
+          </div>
+
+          {/* Drawer footer */}
+          <div className='mt-auto pt-8'>
+            <div className='rounded-2xl border border-[#DDD0BE] bg-[#F7F1E8] p-4'>
+              <div className='flex items-center gap-2 text-[#667451]'>
+                <ShieldCheck size={17} strokeWidth={1.7} />
+                <span className='text-xs font-semibold'>Akses Terproteksi</span>
+              </div>
+
+              <p className='mt-2 text-[11px] leading-relaxed text-[#8C7A66]'>
+                Akun hanya dapat mengelola data sesuai kewenangan cabang.
+              </p>
+            </div>
+
+            {isSuperAdmin ? (
+              <Link
+                href='/admin/super-admin'
+                onClick={closeMobileMenu}
+                className='mt-4 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#765239] transition-colors hover:bg-[#F0E6D8] hover:text-[#49372A]'
+              >
+                <ArrowLeft size={18} strokeWidth={1.7} />
+                Kembali ke Super Admin
+              </Link>
+            ) : (
+              <button
+                type='button'
+                onClick={handleSignOut}
+                className='mt-4 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#816A55] transition-colors hover:bg-[#F0E6D8] hover:text-[#49372A]'
+              >
+                <LogOut size={18} strokeWidth={1.7} />
+                Keluar dari akun
+              </button>
+            )}
+          </div>
+        </aside>
+      </div>
+
+      {/* DESKTOP SIDEBAR + MAIN */}
       <div className='relative z-10 flex min-h-screen'>
-        {/* SIDEBAR DESKTOP */}
-        <aside className='hidden w-[280px] shrink-0 flex-col border-r border-[#DED3C3] bg-[#FBF8F2] px-5 py-7 lg:flex'>
+        {/* DESKTOP SIDEBAR — FIXED */}
+        <aside className='kopilogi-heritage-scroll fixed inset-y-0 left-0 z-40 hidden h-screen w-[280px] flex-col overflow-y-auto border-r border-[#DED3C3] bg-[#FBF8F2] px-5 py-7 lg:flex'>
           {/* BRAND */}
           <Link href='/admin/cabang-2' className='group flex items-center gap-3 px-2'>
-            <div className='relative flex h-12 w-12 items-center justify-center rounded-xl bg-[#49372A] text-[#F6EBDD] shadow-[0_8px_18px_rgba(73,55,42,0.15)] transition-transform duration-300 group-hover:-rotate-2'>
-              <Coffee size={24} strokeWidth={1.5} />
+            <div className='relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#49372A] text-[#F6EBDD]'>
+              <Image
+                src='/logo/kopilogi-no-bg.png'
+                alt='Logo Kopilogi'
+                fill
+                sizes='40px'
+                className='object-contain p-1 transition-transform duration-300 group-hover:scale-105'
+                priority
+              />
 
               <span className='absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-[#FBF8F2] bg-[#667451]' />
             </div>
 
             <div>
-              <p className='font-serif text-[22px] font-bold tracking-tight text-[#49372A]'>
-                Kopilogi
+              <p className='font-serif text-[16px] font-bold tracking-tight text-[#49372A]'>
+                Waroeng Kopilogi
               </p>
-
               <p className='mt-0.5 text-[9px] font-bold uppercase tracking-[0.22em] text-[#9A7C5D]'>
                 Cabang Heritage
               </p>
@@ -230,7 +430,6 @@ export function HeritageDashboard({
             <div className='p-4'>
               <div className='flex items-center gap-2'>
                 <span className='h-2 w-2 rounded-full bg-[#667451]' />
-
                 <span className='text-[9px] font-bold uppercase tracking-[0.18em] text-[#806B55]'>
                   Cabang Aktif
                 </span>
@@ -255,12 +454,11 @@ export function HeritageDashboard({
             </nav>
           </div>
 
-          {/* BOTTOM */}
+          {/* SIDEBAR BOTTOM */}
           <div className='mt-auto pt-8'>
             <div className='rounded-2xl border border-[#DDD0BE] bg-[#F7F1E8] p-4'>
               <div className='flex items-center gap-2 text-[#667451]'>
                 <ShieldCheck size={17} strokeWidth={1.7} />
-
                 <span className='text-xs font-semibold'>Akses Terproteksi</span>
               </div>
 
@@ -269,19 +467,57 @@ export function HeritageDashboard({
               </p>
             </div>
 
-            <button
-              type='button'
-              onClick={() => void onSignOut()}
-              className='mt-4 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#816A55] transition-colors hover:bg-[#F0E6D8] hover:text-[#49372A]'
-            >
-              <LogOut size={18} strokeWidth={1.7} />
-              Keluar dari akun
-            </button>
+            {isSuperAdmin ? (
+              <Link
+                href='/admin/super-admin'
+                className='mt-4 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#765239] transition-colors hover:bg-[#F0E6D8] hover:text-[#49372A]'
+              >
+                <ArrowLeft size={18} strokeWidth={1.7} />
+                Kembali ke Super Admin
+              </Link>
+            ) : (
+              <button
+                type='button'
+                onClick={handleSignOut}
+                className='mt-4 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#816A55] transition-colors hover:bg-[#F0E6D8] hover:text-[#49372A]'
+              >
+                <LogOut size={18} strokeWidth={1.7} />
+                Keluar dari akun
+              </button>
+            )}
           </div>
         </aside>
 
-        {/* MAIN */}
-        <main className='min-w-0 flex-1'>
+        {/* MAIN CONTENT */}
+        <main className='min-w-0 flex-1 lg:ml-[280px]'>
+          {/* MOBILE TOP BAR — SELALU TERSEDIA */}
+          <header className='sticky top-0 z-30 flex min-h-[72px] items-center justify-between gap-3 border-b border-[#DED3C3]/80 bg-[#F8F4EC]/95 px-4 backdrop-blur-xl sm:px-6 lg:hidden'>
+            <div className='flex min-w-0 items-center gap-3'>
+              <button
+                type='button'
+                aria-label='Buka navigasi'
+                aria-expanded={isMobileMenuOpen}
+                aria-controls='heritage-mobile-navigation'
+                onClick={() => setIsMobileMenuOpen(true)}
+                className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#DED3C3] bg-[#FBF8F2] text-[#49372A] transition-colors hover:bg-[#EFE5D7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9A7C5D]'
+              >
+                <MenuIcon size={20} strokeWidth={1.8} />
+              </button>
+
+              <div className='min-w-0'>
+                <p className='truncate text-sm font-semibold text-[#49372A]'>{branchName}</p>
+                <p className='mt-0.5 text-xs text-[#927D67]'>
+                  {activeTab === "menu" ? "Pengelolaan Menu" : "Panel Administrasi Cabang 2"}
+                </p>
+              </div>
+            </div>
+
+            <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D4C1A9] bg-[#E9D9C4] font-serif text-base font-bold text-[#49372A]'>
+              {firstName.charAt(0).toUpperCase()}
+            </div>
+          </header>
+
+          {/* MENU MANAGEMENT */}
           {activeTab === "menu" ? (
             <MenuManagement
               initialMenus={menus}
@@ -290,26 +526,16 @@ export function HeritageDashboard({
             />
           ) : (
             <>
-              {/* HEADER */}
-              <header className='sticky top-0 z-30 flex min-h-[76px] items-center justify-between border-b border-[#DED3C3]/80 bg-[#F8F4EC]/90 px-5 backdrop-blur-xl sm:px-8 lg:px-10'>
-                <div className='flex min-w-0 items-center gap-3'>
-                  <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#DED3C3] bg-[#FBF8F2] lg:hidden'>
-                    <Coffee size={20} strokeWidth={1.6} className='text-[#49372A]' />
-                  </div>
-
-                  <div className='min-w-0'>
-                    <p className='truncate text-sm font-semibold text-[#49372A] sm:text-base'>
-                      {branchName}
-                    </p>
-
-                    <p className='mt-0.5 text-xs text-[#927D67]'>Panel Administrasi Cabang 2</p>
-                  </div>
+              {/* DESKTOP HEADER */}
+              <header className='sticky top-0 z-30 hidden min-h-[76px] items-center justify-between border-b border-[#DED3C3]/80 bg-[#F8F4EC]/90 px-8 backdrop-blur-xl lg:flex lg:px-10'>
+                <div className='min-w-0'>
+                  <p className='truncate text-base font-semibold text-[#49372A]'>{branchName}</p>
+                  <p className='mt-0.5 text-xs text-[#927D67]'>Panel Administrasi Cabang 2</p>
                 </div>
 
                 <div className='flex shrink-0 items-center gap-3'>
-                  <div className='hidden text-right sm:block'>
+                  <div className='text-right'>
                     <p className='text-sm font-semibold text-[#49372A]'>{name}</p>
-
                     <p className='mt-0.5 max-w-[190px] truncate text-xs text-[#927D67]'>{email}</p>
                   </div>
 
@@ -321,14 +547,14 @@ export function HeritageDashboard({
                     type='button'
                     aria-label='Notifikasi'
                     title='Notifikasi'
-                    className='hidden h-10 w-10 items-center justify-center rounded-xl border border-[#DED3C3] bg-[#FBF8F2] text-[#806B55] transition-colors hover:bg-[#EFE5D7] sm:flex'
+                    className='flex h-10 w-10 items-center justify-center rounded-xl border border-[#DED3C3] bg-[#FBF8F2] text-[#806B55] transition-colors hover:bg-[#EFE5D7]'
                   >
                     <Bell size={18} strokeWidth={1.7} />
                   </button>
                 </div>
               </header>
 
-              {/* CONTENT */}
+              {/* DASHBOARD CONTENT */}
               <motion.div
                 variants={staggerContainer}
                 initial='hidden'
@@ -347,7 +573,6 @@ export function HeritageDashboard({
                   <div className='relative z-10 max-w-3xl px-6 py-9 sm:px-9 sm:py-11 lg:px-11 lg:py-14'>
                     <div className='inline-flex items-center gap-2 rounded-full border border-[#B99A76]/50 bg-[#F8F0E4]/70 px-3.5 py-2'>
                       <span className='h-1.5 w-1.5 rounded-full bg-[#667451]' />
-
                       <span className='text-[9px] font-bold uppercase tracking-[0.18em] text-[#705B46] sm:text-[10px]'>
                         Traditional Heritage · Cabang 02
                       </span>
@@ -403,7 +628,7 @@ export function HeritageDashboard({
                   </div>
                 </motion.section>
 
-                {/* CARDS */}
+                {/* SUMMARY CARDS */}
                 <motion.section
                   variants={staggerContainer}
                   className='grid gap-4 md:grid-cols-2 xl:grid-cols-3'
@@ -458,7 +683,6 @@ export function HeritageDashboard({
 
                     <div className='mt-5 flex items-start gap-2 text-xs font-medium text-[#667451]'>
                       <ShieldCheck size={15} strokeWidth={1.7} className='mt-0.5 shrink-0' />
-
                       <span>Terhubung dengan data cabang</span>
                     </div>
                   </motion.article>
@@ -466,7 +690,7 @@ export function HeritageDashboard({
                   {/* LOCATION */}
                   <motion.article
                     variants={fadeUp}
-                    className='rounded-2xl border border-[#E0D4C3] bg-[#FBF8F2] p-5 shadow-[0_5px_18px_rgba(76,53,32,0.025)] md:col-span-2 xl:col-span-1 sm:p-6'
+                    className='rounded-2xl border border-[#E0D4C3] bg-[#FBF8F2] p-5 shadow-[0_5px_18px_rgba(76,53,32,0.025)] md:col-span-2 sm:p-6 xl:col-span-1'
                   >
                     <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-[#E8DDD0] text-[#755339]'>
                       <MapPin size={22} strokeWidth={1.6} />
@@ -551,7 +775,6 @@ export function HeritageDashboard({
 
                         <div className='mt-1 flex items-center gap-2'>
                           <span className='h-2 w-2 rounded-full bg-[#667451]' />
-
                           <span className='text-xs text-[#88745F]'>Sistem siap digunakan</span>
                         </div>
                       </div>
@@ -564,7 +787,6 @@ export function HeritageDashboard({
                         <p className='text-[10px] font-bold uppercase tracking-[0.16em] text-[#A18A72]'>
                           Nama Cabang
                         </p>
-
                         <p className='mt-1.5 text-sm font-medium text-[#5E4A38]'>{branchName}</p>
                       </div>
 
@@ -572,7 +794,6 @@ export function HeritageDashboard({
                         <p className='text-[10px] font-bold uppercase tracking-[0.16em] text-[#A18A72]'>
                           Konsep
                         </p>
-
                         <p className='mt-1.5 text-sm font-medium text-[#5E4A38]'>
                           Traditional Heritage
                         </p>
