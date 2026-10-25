@@ -6,12 +6,15 @@ import { StorySection } from "@/features/home/components/story-section";
 import { HomeFooter } from "@/features/home/components/home-footer";
 import { getPublicMenus } from "@/features/menu/queries/public-menu.queries";
 import { MenuShowcaseSection } from "@/features/home/components/menu-showcase-section";
+import { ScrollbarTheme } from "@/components/layout/scrollbar-theme";
 
 export default async function HomePage() {
   const menus = await getPublicMenus();
 
   return (
     <>
+      <ScrollbarTheme theme='landing-theme' />
+
       <Navbar />
 
       <main>

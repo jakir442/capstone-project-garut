@@ -61,7 +61,7 @@ const locations = [
 
 export function StorySection() {
   return (
-    <section id='about' className='border-y border-border/60 bg-muted/30'>
+    <section id='about' className='border-y border-[#deded8] bg-[#f5f5f2] text-[#20211f]'>
       <Container className='py-20 sm:py-28'>
         {/* Intro */}
         <div className='grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20'>
@@ -107,7 +107,7 @@ export function StorySection() {
             {milestones.map((milestone, index) => (
               <div
                 key={milestone.title}
-                className='relative rounded-2xl border border-border/70 bg-background p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg'
+                className='relative rounded-2xl border border-[#deded8] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg'
               >
                 <div className='mb-6 flex items-center justify-between'>
                   <span className='text-sm font-semibold text-foreground'>{milestone.year}</span>
@@ -152,8 +152,8 @@ export function StorySection() {
                     key={location.name}
                     className={`rounded-2xl border p-5 transition-all duration-300 ${
                       isClosed
-                        ? "border-border/70 bg-muted/50"
-                        : "border-border/70 bg-background hover:-translate-y-1 hover:shadow-lg"
+                        ? "border-[#deded8] bg-[#e9e9e4]"
+                        : "border-[#deded8] bg-white hover:-translate-y-1 hover:shadow-lg"
                     }`}
                   >
                     <div className='flex items-start justify-between gap-4'>
@@ -212,7 +212,7 @@ export function StorySection() {
         </div>
 
         {/* Closing statement */}
-        <div className='mt-16 rounded-3xl border border-border/70 bg-background p-6 sm:p-8 lg:p-10'>
+        <div className='mt-16 rounded-3xl border border-[#deded8] bg-white p-6 sm:p-8 lg:p-10'>
           <div className='flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between'>
             <div className='max-w-2xl'>
               <p className='text-sm font-medium text-foreground'>Satu perjalanan, banyak cerita.</p>

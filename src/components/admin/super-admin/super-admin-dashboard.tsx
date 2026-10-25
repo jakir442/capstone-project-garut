@@ -16,12 +16,14 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { CreateAdminDialog } from "./create-admin-dialog";
 import { EditAdminDialog } from "./edit-admin-dialog";
 import { DeleteAdminDialog } from "./delete-admin-dialog";
+import { ScrollbarTheme } from "@/components/layout/scrollbar-theme";
 import { toast } from "sonner";
+import Image from "next/image";
 
 type AdminBranch = {
   id: string;
@@ -109,10 +111,34 @@ export function SuperAdminDashboard({
 }: SuperAdminDashboardProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
-
-  const activeBranches = branches.filter((branch) => branch.isActive).length;
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("all");
+
+  const activeBranches = branches.filter((branch) => branch.isActive).length;
+
+  const [activeSection, setActiveSection] = useState("overview");
+
+  useEffect(() => {
+    const updateActiveSection = () => {
+      const marker = window.scrollY + 180;
+      const branches = document.getElementById("branches");
+      const administrators = document.getElementById("administrators");
+
+      if (administrators && marker >= administrators.offsetTop) {
+        setActiveSection("administrators");
+      } else if (branches && marker >= branches.offsetTop) {
+        setActiveSection("branches");
+      } else {
+        setActiveSection("overview");
+      }
+    };
+
+    updateActiveSection();
+
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+
+    return () => window.removeEventListener("scroll", updateActiveSection);
+  }, []);
 
   const filteredAdmins = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -146,18 +172,28 @@ export function SuperAdminDashboard({
   }
 
   return (
-    <div className='min-h-screen bg-[#f6f5f2] text-[#22221f]'>
-      <div className='flex min-h-screen'>
-        {/* Desktop Sidebar */}
-        <aside className='hidden w-64 shrink-0 border-r border-white/[0.06] bg-[#171715] text-white lg:flex lg:flex-col'>
-          <div className='flex h-20 items-center border-b border-white/[0.08] px-6'>
+    <>
+      <ScrollbarTheme theme='super-admin-theme' />
+
+      <div className='min-h-screen bg-[#f6f5f2] text-[#22221f]'>
+        <aside className='fixed inset-y-0 left-0 z-50 hidden w-64 border-r border-white/[0.06] bg-[#171715] text-white lg:flex lg:flex-col'>
+          {/* Sidebar Header */}
+          <div className='flex h-20 shrink-0 items-center border-b border-white/[0.08] px-6'>
             <div className='flex items-center gap-3'>
-              <div className='flex size-10 items-center justify-center rounded-xl bg-white text-sm font-bold text-[#171715]'>
-                K
+              <div className='relative flex size-10 items-center justify-center rounded-xl bg-white p-1.5'>
+                <Image
+                  src='/logo/kopilogi-no-bg.png'
+                  alt='Logo Kopilogi'
+                  fill
+                  sizes='40px'
+                  className='object-contain p-1 transition-transform duration-300 group-hover:scale-105'
+                  priority
+                />
               </div>
 
               <div>
                 <p className='text-sm font-bold tracking-[0.2em]'>KOPILOGI</p>
+
                 <p className='mt-0.5 text-[10px] uppercase tracking-[0.16em] text-white/45'>
                   Control Center
                 </p>
@@ -165,34 +201,52 @@ export function SuperAdminDashboard({
             </div>
           </div>
 
-          <nav className='flex-1 space-y-1 p-4'>
+          {/* Sidebar Navigation */}
+          <nav className='min-h-0 flex-1 overflow-y-auto p-4'>
             <p className='mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35'>
               Workspace
             </p>
 
-            <Link
-              href='/admin/super-admin'
-              className='flex items-center gap-3 rounded-xl bg-white/[0.09] px-3 py-2.5 text-sm font-medium text-white'
-            >
-              <LayoutDashboard className='size-4' />
-              Overview
-            </Link>
+            <div className='space-y-1'>
+              <Link
+                href='/admin/super-admin'
+                aria-current={activeSection === "overview" ? "page" : undefined}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  activeSection === "overview"
+                    ? "bg-white/[0.09] text-white"
+                    : "text-white/55 hover:bg-white/[0.06] hover:text-white"
+                }`}
+              >
+                <LayoutDashboard className='size-4 shrink-0' />
+                Overview
+              </Link>
 
-            <Link
-              href='#branches'
-              className='flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/55 transition-colors hover:bg-white/[0.06] hover:text-white'
-            >
-              <Building2 className='size-4' />
-              Cabang
-            </Link>
+              <Link
+                href='#branches'
+                aria-current={activeSection === "branches" ? "location" : undefined}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  activeSection === "branches"
+                    ? "bg-white/[0.09] text-white"
+                    : "text-white/55 hover:bg-white/[0.06] hover:text-white"
+                }`}
+              >
+                <Building2 className='size-4 shrink-0' />
+                Cabang
+              </Link>
 
-            <Link
-              href='#administrators'
-              className='flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/55 transition-colors hover:bg-white/[0.06] hover:text-white'
-            >
-              <Users className='size-4' />
-              Administrator
-            </Link>
+              <Link
+                href='#administrators'
+                aria-current={activeSection === "administrators" ? "location" : undefined}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  activeSection === "administrators"
+                    ? "bg-white/[0.09] text-white"
+                    : "text-white/55 hover:bg-white/[0.06] hover:text-white"
+                }`}
+              >
+                <Users className='size-4 shrink-0' />
+                Administrator
+              </Link>
+            </div>
 
             <p className='mb-3 mt-8 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35'>
               System
@@ -204,7 +258,8 @@ export function SuperAdminDashboard({
             </div>
           </nav>
 
-          <div className='border-t border-white/[0.08] p-4'>
+          {/* Sidebar User */}
+          <div className='shrink-0 border-t border-white/[0.08] p-4'>
             <div className='mb-3 rounded-xl bg-white/[0.05] p-3'>
               <div className='flex items-center gap-3'>
                 <div className='flex size-9 shrink-0 items-center justify-center rounded-full bg-white/10'>
@@ -225,21 +280,33 @@ export function SuperAdminDashboard({
               className='flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/50 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-50'
             >
               <LogOut className='size-4' />
+
               {isSigningOut ? "Keluar..." : "Keluar"}
             </button>
           </div>
         </aside>
 
-        {/* Mobile Header */}
-        <header className='fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-black/[0.06] bg-[#f6f5f2]/95 px-4 backdrop-blur lg:hidden'>
+        {/* =========================================================
+          MOBILE HEADER
+      ========================================================== */}
+        <header className='fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-black/[0.06] bg-[#f6f5f2]/95 px-4 backdrop-blur-xl lg:hidden'>
           <div className='flex items-center gap-2.5'>
-            <div className='flex size-9 items-center justify-center rounded-xl bg-[#171715] text-sm font-bold text-white'>
-              K
+            <div className='relative flex size-8 shrink-0 items-center justify-center'>
+              <Image
+                src='/logo/kopilogi-no-bg.png'
+                alt='Logo Kopilogi'
+                fill
+                sizes='32px'
+                className='object-contain'
+                priority
+              />
             </div>
 
-            <div>
-              <p className='text-xs font-bold tracking-[0.18em]'>KOPILOGI</p>
-              <p className='text-[9px] uppercase tracking-[0.12em] text-black/40'>Control Center</p>
+            <div className='space-y-0.5'>
+              <p className='text-xs font-bold tracking-[0.16em] text-[#171715]'>KOPILOGI</p>
+              <p className='text-[9px] font-medium uppercase tracking-[0.12em] text-black/40'>
+                Control Center
+              </p>
             </div>
           </div>
 
@@ -254,7 +321,7 @@ export function SuperAdminDashboard({
           </button>
         </header>
 
-        {/* Mobile Navigation */}
+        {/* MOBILE NAVIGATION */}
         {mobileOpen && (
           <>
             <button
@@ -264,32 +331,47 @@ export function SuperAdminDashboard({
               className='fixed inset-0 z-20 bg-black/20 lg:hidden'
             />
 
-            <div className='fixed inset-x-0 top-16 z-30 border-b border-black/[0.06] bg-white p-4 shadow-xl lg:hidden'>
+            <div className='fixed inset-x-0 top-16 z-30 border-b border-black/[0.06] bg-[#f6f5f2] p-4 shadow-xl backdrop-blur-xl lg:hidden'>
               <nav className='space-y-1'>
                 <Link
                   href='/admin/super-admin'
                   onClick={closeMobileMenu}
-                  className='flex items-center gap-3 rounded-xl bg-black px-3 py-3 text-sm font-medium text-white'
+                  aria-current={activeSection === "overview" ? "page" : undefined}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                    activeSection === "overview"
+                      ? "bg-[#171715]/[0.08] text-[#171715]"
+                      : "text-black/60 hover:bg-[#171715]/[0.06] hover:text-[#171715] active:bg-[#171715]/[0.10]"
+                  }`}
                 >
-                  <LayoutDashboard className='size-4' />
+                  <LayoutDashboard className='size-4 shrink-0' />
                   Overview
                 </Link>
 
                 <Link
                   href='#branches'
                   onClick={closeMobileMenu}
-                  className='flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-600'
+                  aria-current={activeSection === "branches" ? "location" : undefined}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                    activeSection === "branches"
+                      ? "bg-[#171715]/[0.08] text-[#171715]"
+                      : "text-black/60 hover:bg-[#171715]/[0.06] hover:text-[#171715] active:bg-[#171715]/[0.10]"
+                  }`}
                 >
-                  <Building2 className='size-4' />
+                  <Building2 className='size-4 shrink-0' />
                   Cabang
                 </Link>
 
                 <Link
                   href='#administrators'
                   onClick={closeMobileMenu}
-                  className='flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-600'
+                  aria-current={activeSection === "administrators" ? "location" : undefined}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                    activeSection === "administrators"
+                      ? "bg-[#171715]/[0.08] text-[#171715]"
+                      : "text-black/60 hover:bg-[#171715]/[0.06] hover:text-[#171715] active:bg-[#171715]/[0.10]"
+                  }`}
                 >
-                  <Users className='size-4' />
+                  <Users className='size-4 shrink-0' />
                   Administrator
                 </Link>
 
@@ -297,9 +379,9 @@ export function SuperAdminDashboard({
                   type='button'
                   onClick={handleSignOut}
                   disabled={isSigningOut}
-                  className='flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-600 disabled:opacity-50'
+                  className='flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-black/60 transition-all duration-200 hover:bg-[#171715]/[0.06] hover:text-[#171715] active:bg-[#171715]/[0.10] disabled:pointer-events-none disabled:opacity-50'
                 >
-                  <LogOut className='size-4' />
+                  <LogOut className='size-4 shrink-0' />
                   {isSigningOut ? "Keluar..." : "Keluar"}
                 </button>
               </nav>
@@ -307,8 +389,8 @@ export function SuperAdminDashboard({
           </>
         )}
 
-        {/* Main Content */}
-        <main className='min-w-0 flex-1'>
+        {/* MAIN CONTENT */}
+        <main className='min-w-0 lg:pl-64'>
           <div className='mx-auto max-w-[1600px] px-4 pb-10 pt-24 sm:px-6 lg:px-8 lg:pt-8'>
             {/* Page Header */}
             <header className='mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end'>
@@ -370,7 +452,9 @@ export function SuperAdminDashboard({
               />
             </section>
 
-            {/* Kartu Cabang */}
+            {/* =====================================================
+              KARTU CABANG
+          ====================================================== */}
             <section>
               <div className='mb-5 mt-10 flex items-end justify-between gap-4'>
                 <div>
@@ -389,6 +473,7 @@ export function SuperAdminDashboard({
 
                 <div className='hidden rounded-xl border border-black/[0.06] bg-white px-3.5 py-2 sm:block'>
                   <p className='text-xs text-neutral-400'>Total Cabang</p>
+
                   <p className='mt-0.5 text-lg font-semibold text-[#22221f]'>{branches.length}</p>
                 </div>
               </div>
@@ -492,13 +577,16 @@ export function SuperAdminDashboard({
               </div>
             </section>
 
-            {/* Branch Network */}
+            {/* =====================================================
+              BRANCH NETWORK
+          ====================================================== */}
             <section id='branches' className='mt-10 scroll-mt-8'>
               <div className='mb-5 flex items-end justify-between gap-4'>
                 <div>
                   <p className='text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400'>
                     Branch Network
                   </p>
+
                   <h2 className='mt-1 text-xl font-semibold tracking-tight'>Cabang Kopilogi</h2>
                 </div>
 
@@ -514,14 +602,18 @@ export function SuperAdminDashboard({
               </div>
             </section>
 
-            {/* Administrator Management */}
+            {/* =====================================================
+              ADMINISTRATOR MANAGEMENT
+          ====================================================== */}
             <section id='administrators' className='mt-10 scroll-mt-8'>
               <div className='mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end'>
                 <div>
                   <p className='text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400'>
                     Access Management
                   </p>
+
                   <h2 className='mt-1 text-xl font-semibold tracking-tight'>Administrator</h2>
+
                   <p className='mt-1 text-sm text-neutral-500'>
                     Pantau akun administrator yang ditugaskan pada setiap cabang.
                   </p>
@@ -549,6 +641,7 @@ export function SuperAdminDashboard({
 
                     <div>
                       <p className='text-sm font-semibold'>Administrator Cabang</p>
+
                       <p className='text-xs text-neutral-400'>Data akun dari database Kopilogi.</p>
                     </div>
                   </div>
@@ -708,7 +801,6 @@ export function SuperAdminDashboard({
                             </p>
                           </div>
 
-                          {/* Actions */}
                           <div className='flex items-center justify-start gap-1 md:justify-end'>
                             <EditAdminDialog admin={admin} branches={branches} />
 
@@ -759,7 +851,7 @@ export function SuperAdminDashboard({
           </div>
         </main>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -783,7 +875,9 @@ function StatCard({ icon: Icon, label, value, description }: StatCardProps) {
 
       <div className='mt-6'>
         <p className='text-xs font-medium text-neutral-400'>{label}</p>
+
         <p className='mt-1 text-3xl font-semibold tracking-tight'>{value}</p>
+
         <p className='mt-1 text-xs text-neutral-400'>{description}</p>
       </div>
     </div>
@@ -810,6 +904,7 @@ function BranchCard({ meta, branch }: BranchCardProps) {
     <>
       <div className={`relative min-h-44 overflow-hidden bg-gradient-to-br ${meta.className}`}>
         <div className='absolute -right-10 -top-10 size-40 rounded-full bg-white/[0.06]' />
+
         <div className='absolute -bottom-16 -left-10 size-40 rounded-full bg-black/[0.08]' />
 
         <div className='relative flex min-h-44 flex-col justify-between p-5'>

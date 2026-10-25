@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
 import {
   ArrowRight,
-  CheckCircle2,
   Coffee,
   Eye,
   EyeOff,
@@ -14,7 +13,6 @@ import {
   LockKeyhole,
   Mail,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -75,37 +73,33 @@ export function LoginForm() {
 
   return (
     <div className='w-full'>
-      {/* Heading */}
-      <div className='mb-8'>
-        <div className='mb-4 inline-flex items-center gap-2 rounded-full border border-amber-900/10 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-900'>
-          <Sparkles className='size-3.5' />
-          Selamat datang kembali
-        </div>
+      {/* Mobile heading */}
+      <div className='mb-6 lg:hidden'>
+        <p className='text-xs font-semibold uppercase tracking-[0.18em] text-[#96704b]'>
+          Account access
+        </p>
 
-        <h1 className='text-3xl font-semibold tracking-tight text-neutral-950 sm:text-4xl'>
-          Senang melihatmu
-          <br />
-          <span className='text-neutral-400'>kembali.</span>
+        <h1 className='mt-2 text-2xl font-semibold tracking-[-0.04em] text-[#211b16]'>
+          Masuk ke akun
         </h1>
 
-        <p className='mt-3 max-w-sm text-sm leading-6 text-neutral-500'>
-          Masuk ke akun Kopilogi untuk menikmati pengalaman yang lebih personal dan menjelajahi
-          pilihan favoritmu.
+        <p className='mt-2 text-sm leading-6 text-[#776d62]'>
+          Lanjutkan pengalamanmu bersama Kopilogi.
         </p>
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className='space-y-5'>
+      {/* Login form */}
+      <form onSubmit={handleSubmit} className='space-y-4'>
         {/* Email */}
-        <div className='space-y-2'>
-          <label htmlFor='email' className='text-sm font-medium text-neutral-800'>
+        <div className='space-y-1.5'>
+          <label htmlFor='email' className='text-sm font-medium text-[#40362c]'>
             Alamat email
           </label>
 
           <div className='group relative'>
             <Mail
               aria-hidden='true'
-              className='pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-amber-800'
+              className='pointer-events-none absolute left-3.5 top-1/2 size-[17px] -translate-y-1/2 text-[#a09689] transition-colors group-focus-within:text-[#8b6845]'
             />
 
             <Input
@@ -119,25 +113,25 @@ export function LoginForm() {
               required
               disabled={isLoading}
               aria-invalid={Boolean(errorMessage)}
-              className='h-13 rounded-xl border-neutral-200 bg-neutral-50/70 pl-11 text-sm shadow-none transition-all placeholder:text-neutral-400 hover:border-neutral-300 focus-visible:border-amber-800 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-amber-900/10'
+              className='h-11 rounded-xl border-[#e7e0d7] bg-[#faf8f4]/80 pl-10 text-sm shadow-none transition-all placeholder:text-[#b3a99d] hover:border-[#d4c7b7] focus-visible:border-[#96704b] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#96704b]/10'
             />
           </div>
         </div>
 
         {/* Password */}
-        <div className='space-y-2'>
+        <div className='space-y-1.5'>
           <div className='flex items-center justify-between gap-3'>
-            <label htmlFor='password' className='text-sm font-medium text-neutral-800'>
+            <label htmlFor='password' className='text-sm font-medium text-[#40362c]'>
               Password
             </label>
 
-            <span className='text-xs text-neutral-400'>Jaga kerahasiaan password</span>
+            <span className='text-[11px] text-[#a09689]'>Jaga kerahasiaannya</span>
           </div>
 
           <div className='group relative'>
             <LockKeyhole
               aria-hidden='true'
-              className='pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-amber-800'
+              className='pointer-events-none absolute left-3.5 top-1/2 size-[17px] -translate-y-1/2 text-[#a09689] transition-colors group-focus-within:text-[#8b6845]'
             />
 
             <Input
@@ -151,7 +145,7 @@ export function LoginForm() {
               required
               disabled={isLoading}
               aria-invalid={Boolean(errorMessage)}
-              className='h-13 rounded-xl border-neutral-200 bg-neutral-50/70 pl-11 pr-12 text-sm shadow-none transition-all placeholder:text-neutral-400 hover:border-neutral-300 focus-visible:border-amber-800 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-amber-900/10'
+              className='h-11 rounded-xl border-[#e7e0d7] bg-[#faf8f4]/80 pl-10 pr-11 text-sm shadow-none transition-all placeholder:text-[#b3a99d] hover:border-[#d4c7b7] focus-visible:border-[#96704b] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#96704b]/10'
             />
 
             <button
@@ -160,9 +154,9 @@ export function LoginForm() {
               disabled={isLoading}
               aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
               aria-pressed={showPassword}
-              className='absolute right-3.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-200/70 hover:text-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-800 disabled:cursor-not-allowed disabled:opacity-50'
+              className='absolute right-2.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-[#a09689] transition-colors hover:bg-[#211b16]/5 hover:text-[#40362c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#96704b] disabled:cursor-not-allowed disabled:opacity-50'
             >
-              {showPassword ? <EyeOff className='size-[18px]' /> : <Eye className='size-[18px]' />}
+              {showPassword ? <EyeOff className='size-[17px]' /> : <Eye className='size-[17px]' />}
             </button>
           </div>
         </div>
@@ -172,21 +166,21 @@ export function LoginForm() {
           <div
             role='alert'
             aria-live='polite'
-            className='flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm text-red-700'
+            className='flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700'
           >
-            <span className='mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-red-100'>
-              <span className='text-xs font-bold'>!</span>
+            <span className='flex size-5 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold'>
+              !
             </span>
 
             <p className='leading-5'>{errorMessage}</p>
           </div>
         )}
 
-        {/* Submit */}
+        {/* Login button */}
         <Button
           type='submit'
           disabled={isLoading}
-          className='group relative h-13 w-full overflow-hidden rounded-xl bg-neutral-950 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-all duration-300 hover:bg-amber-950 hover:shadow-xl hover:shadow-amber-950/15 focus-visible:ring-4 focus-visible:ring-amber-900/20 disabled:cursor-not-allowed disabled:opacity-70'
+          className='group relative mt-1 h-11 w-full overflow-hidden rounded-xl bg-[#211b16] text-sm font-semibold text-white shadow-md shadow-[#211b16]/10 transition-all duration-300 hover:bg-[#493323] hover:shadow-lg hover:shadow-[#211b16]/15 focus-visible:ring-4 focus-visible:ring-[#96704b]/20 disabled:cursor-not-allowed disabled:opacity-70'
         >
           <span className='relative z-10 flex items-center justify-center gap-2'>
             {isLoading ? (
@@ -203,47 +197,45 @@ export function LoginForm() {
           </span>
         </Button>
 
-        {/* Security note */}
-        <div className='flex items-center justify-center gap-2 text-xs text-neutral-400'>
-          <ShieldCheck className='size-4 text-emerald-700/70' />
-          <span>Masuk dengan akun Kopilogi kamu</span>
+        {/* Security */}
+        <div className='flex items-center justify-center gap-1.5 pt-0.5 text-[11px] text-[#9a8f82]'>
+          <ShieldCheck className='size-3.5 shrink-0 text-emerald-700/70' />
+          <span>Login aman dengan akun Kopilogi</span>
         </div>
       </form>
 
-      {/* Register link */}
-      <div className='my-7 flex items-center gap-4'>
-        <div className='h-px flex-1 bg-neutral-200' />
-        <span className='text-xs text-neutral-400'>ATAU</span>
-        <div className='h-px flex-1 bg-neutral-200' />
+      {/* Register divider */}
+      <div className='my-5 flex items-center gap-3'>
+        <div className='h-px flex-1 bg-[#211b16]/10' />
+
+        <span className='text-[10px] font-medium tracking-[0.12em] text-[#a09689]'>
+          BELUM BERGABUNG?
+        </span>
+
+        <div className='h-px flex-1 bg-[#211b16]/10' />
       </div>
 
-      <div className='rounded-2xl border border-neutral-200/80 bg-neutral-50/70 p-4 sm:p-5'>
-        <div className='flex items-center gap-3'>
-          <div className='flex size-10 shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700'>
-            <Coffee className='size-5' />
-          </div>
+      {/* Register */}
+      <div className='flex items-center gap-3 rounded-xl border border-[#e9e1d7] bg-white/45 p-3'>
+        <div className='flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#e9e1d7] bg-white text-[#8b6845]'>
+          <Coffee className='size-4' />
+        </div>
 
-          <div className='min-w-0 flex-1'>
-            <p className='text-sm font-semibold text-neutral-900'>Belum punya akun?</p>
-            <p className='mt-1 text-xs leading-5 text-neutral-500'>
-              Buat akun dan mulai pengalamanmu bersama Kopilogi.
-            </p>
-          </div>
+        <div className='min-w-0 flex-1'>
+          <p className='text-sm font-semibold text-[#30271f]'>Belum punya akun?</p>
+
+          <p className='mt-0.5 text-xs leading-5 text-[#8c8175]'>
+            Daftar untuk memulai pengalaman Kopilogi.
+          </p>
         </div>
 
         <Link
           href='/register'
-          className='mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-800 transition-all hover:border-neutral-400 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-900/10'
+          className='inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#e7ded2] bg-white px-3 text-xs font-semibold text-[#493323] transition-colors hover:border-[#c9a77c] hover:bg-[#faf5ed] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#96704b]'
         >
-          Buat Akun Baru
-          <ArrowRight className='size-4' />
+          Daftar
+          <ArrowRight className='size-3.5' />
         </Link>
-      </div>
-
-      {/* Footer */}
-      <div className='mt-7 flex items-center justify-center gap-2 text-center text-xs leading-5 text-neutral-400'>
-        <CheckCircle2 className='size-3.5 shrink-0' />
-        <span>Pengalaman Kopilogi, lebih dekat dan personal.</span>
       </div>
     </div>
   );
